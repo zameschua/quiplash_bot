@@ -1,0 +1,17 @@
+{
+  "name": "quiplash_bot",
+  "version": "1.0.0",
+  "description": "A telegram bot to host Quiplash games",
+  "main": "index.js",
+  "dependencies": {
+    "mongodb": "^2.2.24",
+    "node-telegram-bot-api": "^0.27.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "@zameschua",
+  "license": "ISC"
+}
