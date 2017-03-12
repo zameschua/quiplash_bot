@@ -1,25 +1,24 @@
 class Player {
-	constructor(name, id) {
+	constructor(name) {
 		this.name = name;
-		this.id = id;
-		this.points = 0;
+		this.activeSession = null;
+		this.activeQuestions = [];
 	}
 
 	getName() {
 		return this.name;
 	}
 
-	getId() {
-		return this.id;
+	addActiveSession(session) {
+		this.activeSession = session;
 	}
 
-	getPoints() {
-		return this.points;
+	getActiveSession() {
+		return this.activeSession;
 	}
 
-	// Increments the points by amount
-	addPoints(amount) {
-		this.points += amount;
+	addQuestion(question) {
+		this.activeQuestions.push(question);
 	}
 }
 

@@ -1,17 +1,18 @@
 class Question {
 	constructor(questionText) {
 		this.question = questionText;
-		this.answers = []; // Answer Object
+		this.answers = [];
+		this.players = [];
+		this.numberOfAnswers = 0;
 	}
 
 	getQuestionText() {
 		return this.questionText;
 	}
 
-	addAnswer(newAnswer) {
-		// Throw an error if taking in more than 2 answers
-		console.assert(this.answers.length < 2, "Too many questions");
-		this.answers.push(newAnswer);
+	addAnswer(answer, player) {
+		this.answers.push[answer];
+		this.players.push[player]
 	}
 
 	hasBeenAnswered() {
