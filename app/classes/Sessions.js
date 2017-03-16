@@ -1,6 +1,19 @@
+const Session = require("./Session.js");
+
 class Sessions {
 	constructor() {
 		this.sessions = {};
+	}
+
+	startSession(chatId) {
+		var session = new Session(chatId);
+		this.sessions[chatId] = session;
+
+		return session;
+	}
+
+	endSession(chatId) {
+		delete this.sessions[chatId];
 	}
 
 	// Return true if the chat has an active session
@@ -12,18 +25,9 @@ class Sessions {
 		}
 	}
 
-	getSession(chatId) {
+	getSessionById(chatId) {
 		return this.sessions[chatId];
 	}
-
-	startSession(chatId, session) {
-		this.sessions[chatId] = session;
-	}
-
-	endSession(chatId) {
-		delete this.sessions[chatId];
-	}
-
 }
 
 module.exports = Sessions;

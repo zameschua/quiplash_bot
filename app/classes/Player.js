@@ -1,22 +1,30 @@
+const bot = require("../index.js");
+
 class Player {
-	constructor(name) {
+	constructor(userId, name) {
 		this.name = name;
-		this.activeSession = null;
-		this.activeQuestions = [];
+		this.userId = userId; // UserId = private chat Id
+		this.session = null;
+		this.questions = [];
+	}
+
+	sendMessage(message) {
+		bot.send(this.privateChatId, message);
 	}
 
 	getName() {
 		return this.name;
 	}
 
-	addActiveSession(session) {
-		this.activeSession = session;
+	addSession(session) {
+		this.session = session;
 	}
 
-	getActiveSession() {
-		return this.activeSession;
+	getSession() {
+		return this.session;
 	}
 
+/* MANAGE QUESTIONS */
 	addQuestion(question) {
 		this.activeQuestions.push(question);
 	}

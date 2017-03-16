@@ -6,30 +6,22 @@ class Players {
 	}
 
 	addPlayer(userId, userName) {
-		var newPlayer = new Player(userName);
-		this.players[userId] = Player;
+		var player = new Player(userId, userName);
+		this.players[userId] = player;
 
-		return newPlayer;
+		return player;
 	}
 
 	hasPlayer(userId) {
-		if (this.players.userId === undefined) {
+		if (this.players[userId] === undefined) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
-	getPlayer(userId) {
-		return this.players.userId;
-	}
-
-	addPlayerIfPlayerDoesNotExist(userId, userName) {
-		if (this.hasPlayer(userId)) {
-			return this.players.userId;
-		} else {
-			return this.addPlayer(userId, userName);
-		}
+	getPlayerById(userId) {
+		return this.players[userId];
 	}
 }
 

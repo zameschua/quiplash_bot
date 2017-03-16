@@ -7,9 +7,9 @@ const Question = require("./classes/Question.js");
 const questionBank = require("../data/questionBank.js");
 
 const token = '355394768:AAGVadKJpIv1I3GsNmu08Em9pz_g1MG-GaU';
-const bot = new TelegramBot(token, {polling: true});
+bot = new TelegramBot(token, {polling: true}); // Global
 
-var sessions = new Sessions();
+sessions = new Sessions(); // Global
 var players = new Players(); 
 
 bot.on('message', function(message) {
@@ -21,9 +21,9 @@ bot.on('message', function(message) {
     console.log(sessions);
 
     if (messageType === 'group') {
-        parseGroupMessage(message)
+        parseGroupMessage(message);
     } else if (messageType === 'private') {
-        parsePrivateMessage(message)
+        parsePrivateMessage(message);
     }
 });
 
@@ -33,76 +33,85 @@ function parseGroupMessage(message) {
     const userId = message.from.id;
     const userName = message.from.first_name;
     const messageText = message.text;
+
+    // FOR TESTING ONLY
     console.log(messageText);
+
+    // Tell user to start a chat first if he has not done so
+    if (!players.hasPlayer(userId)) {
+        bot.sendMessage(chatId, "Hi " + userName + "! Please start a chat with me first! @Quiplash_Bot");
+        return;
+    }
+
     switch(messageText) {
-        case '/start':
-            startGame(chatId, userId, userName);
-            break;
         case '/start@Quiplash_Bot':
-            startGame(chatId, userId, userName);
+            startGame(chatId, userId);
             break;
-        case '/join':
-            joinGame(chatId, userId, userName);
+        case '/join@Quiplash_Bot':
+            joinGame(chatId, userId);
             break;
         default: ;
     }
 
 }
 
-// TO DO
 function parsePrivateMessage(message) {
-    const chatId = message.chat.id;
     const userId = message.from.id;
+    const userName = message.from.first_name;
+    const messageText = message.text;
 
-}
-
-
-// -------------------- GROUP MESSAGE FUNCTiONALITIES --------------------
-
-function startGame(chatId, userId, userName) {
-    // If chat is already in a game
-    if (sessions.hasActiveSession(chatId)) {
-        bot.sendMessage(chatId, "Eh bro you all already started a game la, don't blur leh");
-    } else {
-        // Initialise a new session
-        var player = players.addPlayerIfPlayerDoesNotExist(userId, userName);
-        var session = new Session(chatId, player);
-        sessions.startSession(chatId, session);
-
-        session.sendMessage(bot, "Eh bros unite! 60 seconds faster join game!");
-        
-        setTimeout(function() {
-            session.sendMessage(bot, "Eh bro, you all got 30 more seconds to join, don't say we bojio.");
-        }, 30000);
-
-        setTimeout(function() {
-            // if not enough players , cancel game
-            if (session.getNumberOfPlayers() < 3) {
-                session.sendMessage(bot, "Get more people leh");
-            } else {
-                session.questionPhase(bot);
-            }
-        }, 60000);
+    switch(messageText) {
+        case '/start':
+            startChat(userId, userName);
+            break;
+        default: ;
     }
 }
 
-function joinGame(chatId, userId, userName) {
-    // If the session for this chat is running
-    if (sessions.hasActiveSession(chatId)) {
-        var session = sessions.getSession(chatId);
 
-        // Check if user is already in the game
-        if (session.hasPlayer(userId)) {
-            session.sendMessage(bot, "You already join the game la nabei");
-        } else {
-            // Add player to database if he's not in yet
-            var player = players.addPlayerIfPlayerDoesNotExist(userId, userName);
+// --------------------- GROUP MESSAGE FUNCTiONS --------------------------
+function startGame(chatId, userId) {
+    // Create new session
+    var session = sessions.startSession(chatId);
 
-            // Link up player and session
-            player.addActiveSession(chatId);
-            sessions.getSession(chatId).addPlayer(player);
-        }
-    } else {
-        bot.sendMessage(chatId, "/start a game first leh! Don't blur la bro");
+    // Add the player to the session
+    const player = players.getPlayerById(userId);
+    session.addPlayer(player);
+
+    session.start(bot);
+}
+
+function joinGame(chatId, userId) {
+    const player = players.getPlayerById(userId);
+    var session = sessions.getSessionById(chatId);
+
+    // If the user has not initiated a chat with the bot
+    if (session === undefined) {
+        bot.sendMessage(chatId, "Please start a game first!");
+        return;
+    } 
+
+    // If a game is running / not yet started
+    if (session.getPhase() != 0) {
+        bot.sendMessage(chatId, "Please wait till the current round is over!");
+        return;
+    }
+
+    // If player is already in the game
+    if (session.hasPlayer(player)) {
+        bot.sendMessage(chatId, player.getName() + " is already in the game!");
+        return;
+    }
+
+    session.addPlayer(player);
+}
+
+// -------------------- PRIVATE MESSAGE FUNCTIONS -------------------------
+function startChat(userId, userName) {
+    // Create new player if player does not exist
+    if (!players.hasPlayer(userId)) {
+        players.addPlayer(userId, userName);
+
+        bot.sendMessage(userId, "Hi " + userName + "! Add me to a group chat and have fun!");
     }
 }
