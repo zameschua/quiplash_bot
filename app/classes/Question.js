@@ -1,6 +1,6 @@
 class Question {
 	constructor(questionText) {
-		this.question = questionText;
+		this.questionText = questionText;
 		this.answers = [];
 		this.players = [];
 		this.numberOfAnswers = 0;

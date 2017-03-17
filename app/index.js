@@ -7,9 +7,9 @@ const Question = require("./classes/Question.js");
 const questionBank = require("../data/questionBank.js");
 
 const token = '355394768:AAGVadKJpIv1I3GsNmu08Em9pz_g1MG-GaU';
-bot = new TelegramBot(token, {polling: true}); // Global
+const bot = new TelegramBot(token, {polling: true});
 
-sessions = new Sessions(); // Global
+const sessions = new Sessions();
 var players = new Players(); 
 
 bot.on('message', function(message) {
@@ -32,22 +32,23 @@ function parseGroupMessage(message) {
     // FOR TESTING ONLY
     console.log(messageText);
 
-    // Tell user to start a chat first if he has not done so
-    if (!players.hasPlayer(userId)) {
-        bot.sendMessage(chatId, "Hi " + userName + "! Please start a chat with me first! @Quiplash_Bot");
-        return;
+    // If the user used inline command to talk to Quiplash_Bot
+    if (messageText.split('@')[1] === 'Quiplash_Bot') {
+        // Tell user to start a chat first if he has not done so
+        if (!players.hasPlayer(userId)) {
+            bot.sendMessage(chatId, "Hi " + userName + "! Please start a chat with me first! @Quiplash_Bot");
+        } else {
+            switch(messageText) {
+                case '/start@Quiplash_Bot':
+                    startGame(chatId, userId);
+                    break;
+                case '/join@Quiplash_Bot':
+                    joinGame(chatId, userId);
+                    break;
+                default: ;
+            }
+        }
     }
-
-    switch(messageText) {
-        case '/start@Quiplash_Bot':
-            startGame(chatId, userId);
-            break;
-        case '/join@Quiplash_Bot':
-            joinGame(chatId, userId);
-            break;
-        default: ;
-    }
-
 }
 
 function parsePrivateMessage(message) {
@@ -59,7 +60,12 @@ function parsePrivateMessage(message) {
         case '/start':
             startChat(userId, userName);
             break;
-        default: ;
+        default: 
+            var player = players.getPlayerById(userId);
+            if (player.isAnsweringQuestions()) {
+                player.receiveAnswer(message, bot);
+            }
+            break;
     }
 }
 
@@ -81,16 +87,19 @@ function startGame(chatId, userId) {
     // Session does not exist
     } else {
         // Create new session
-        session = sessions.startSession(chatId);
+        session = sessions.createSession(chatId);
     }
 
     // Add the player to the session if he's not yet in
     const player = players.getPlayerById(userId);
     if (!session.hasPlayer(player)) {
         session.addPlayer(player);
+        ////////////////////////////////////////////////////////////////// ADDED PLAYER 3 TIMES FOR TESTING
+        session.addPlayer(player);
+        session.addPlayer(player);
     }
 
-    session.start();
+    startRegistrationPhase(session);
 }
 
 function joinGame(chatId, userId) {
@@ -122,4 +131,42 @@ function startChat(userId, userName) {
 
         bot.sendMessage(userId, "Hi " + userName + "! Add me to a group chat and have fun!");
     }
+}
+
+//---------------------------------FLOW CONTROL FUNCTIONS
+function startRegistrationPhase(session) {
+    session.setPhase(0);
+
+    bot.sendMessage(session.getChatId(), "The game is starting in 60 seconds! Get all your friends!");
+
+    setTimeout(function() {
+        bot.sendMessage(session.getChatId(), "The game is starting in 30 seconds!");
+    }, 3000);
+
+    // Check if there is sufficient number of players (3) to start a game
+    setTimeout(function() {
+        if (session.getNumberOfPlayers() >=3 ) {
+            startAnsweringPhase(session);
+        } else {
+            bot.sendMessage(session.getChatId(), "Insufficient players!");
+            end(session);
+        }
+    }, 6000);
+}
+
+function startAnsweringPhase(session) {
+    session.setPhase(1);
+    session.assignQuestions();
+    session.sendQuestions(bot);
+    bot.sendMessage(session.getChatId(), "Alright I've sent out the questions! You have 90 seconds to answer 2 questions. May the funniest man win!");
+    setTimeout(function() {
+        startVotingPhase(session);
+    }, 9000);
+}
+
+function endSession(session) {
+    for (player in session.getPlayers()) {
+        player.removeFromSession();
+    }
+    session.setPhase(-1);
 }

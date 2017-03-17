@@ -5,7 +5,7 @@ class Sessions {
 		this.sessions = {};
 	}
 
-	startSession(chatId) {
+	createSession(chatId) {
 		var session = new Session(chatId);
 		this.sessions[chatId] = session;
 		return session;
