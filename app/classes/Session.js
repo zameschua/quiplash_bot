@@ -24,7 +24,7 @@ class Session {
 	}
 
 	end() {
-		;
+		this.phase = -1;
 	}
 
 	getPhase() {
@@ -38,15 +38,17 @@ class Session {
 		this.sendMessage("The game is starting in 60 seconds! Get all your friends!");
 	
 		setTimeout(function() {
-			self.sendMessage("The game is startng in 30 seconds!")
+			self.sendMessage("The game is starting in 30 seconds!")
 		}, 3000);
 
+		// Check if there is sufficient number of players (3) to start a game
 		setTimeout(function() {
 			if (self.getNumberOfPlayers() >=3 ) {
 				self.startAnsweringPhase();
 			} else {
 				self.sendMessage("Insufficient players!");
-				sessions.endSession(this.chatId);
+				self.end();
+				console.log(self);
 			}
 		}, 6000);
 	}
@@ -55,11 +57,54 @@ class Session {
 		this.phase = 1;
 		this.assignQuestions();
 		this.sendMessage("Alright I've sent out the questions! May the funniest man win.");
-		console.log(this.players[0]);	
 	}
 
 	assignQuestions() {
-		console.log("assigning questions");
+		// Shuffle the players
+		this.players = this.shuffleArray(this.players);
+		
+		if (this.questionQueue.length === 0) {
+			this.questionQueue.concat(questionBank);
+		}
+		
+		for (var i = 0; i < this.players.length; i++) {
+			var player = this.players[i];
+			var question1 = new Question(this.questionQueue[0]);
+			var question2 = new Question(this.questionQueue[1]);
+			player.addQuestion(question1);
+			player.addQuestion(question2);
+			// For the odd players
+			if (i % 2 === 1) {
+				this.questionQueue.shift();
+				this.questionQueue.shift();
+			}
+		}
+
+
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOR TESTING ONLY
+	    console.log(this);
+	    console.log(this.players);
+	}
+
+	shuffleArray(array) {
+		  var currentIndex = array.length;
+		  var temporaryValue;
+		  var randomIndex;
+
+		  // While there remain elements to shuffle...
+		  while (0 !== currentIndex) {
+
+		    // Pick a remaining element...
+		    randomIndex = Math.floor(Math.random() * currentIndex);
+		    currentIndex -= 1;
+
+		    // And swap it with the current element.
+		    temporaryValue = array[currentIndex];
+		    array[currentIndex] = array[randomIndex];
+		    array[randomIndex] = temporaryValue;
+		  }
+
+		  return array;
 	}
 
 	endAnsweringPhase() {
@@ -82,7 +127,6 @@ class Session {
 
 	// Returns true if player is already in the game
 	hasPlayer(player) {
-		console.log(this.players.includes(player));
 		return this.players.includes(player);
 	}
 

@@ -8,16 +8,15 @@ class Sessions {
 	startSession(chatId) {
 		var session = new Session(chatId);
 		this.sessions[chatId] = session;
-
 		return session;
 	}
 
 	endSession(chatId) {
-		delete this.sessions[chatId];
+		this.sessions[chatId].end();
 	}
 
-	// Return true if the chat has an active session
-	hasActiveSession(chatId) {
+	// Return true if the chat has a session
+	hasSession(chatId) {
 		if (this.sessions[chatId] === undefined) {
 			return false;
 		} else {

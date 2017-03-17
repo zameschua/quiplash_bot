@@ -14,11 +14,6 @@ var players = new Players();
 
 bot.on('message', function(message) {
     const messageType = message.chat.type;
-    
-    // FOR TESTING ONLY
-    console.log(message);
-    console.log(players);
-    console.log(sessions);
 
     if (messageType === 'group') {
         parseGroupMessage(message);
@@ -71,14 +66,31 @@ function parsePrivateMessage(message) {
 
 // --------------------- GROUP MESSAGE FUNCTiONS --------------------------
 function startGame(chatId, userId) {
-    // Create new session
-    var session = sessions.startSession(chatId);
+    var session;
+    // If session already exists
+    if (sessions.hasSession(chatId)) {
+        session = sessions.getSessionById(chatId);
+        // If session is inactive
+        if (session.getPhase() === -1) {
+            ;
+        // If there is already an active session
+        } else {
+            bot.sendMessage(chatId, "Please wait for the current game to end!");
+            return;
+        }
+    // Session does not exist
+    } else {
+        // Create new session
+        session = sessions.startSession(chatId);
+    }
 
-    // Add the player to the session
+    // Add the player to the session if he's not yet in
     const player = players.getPlayerById(userId);
-    session.addPlayer(player);
+    if (!session.hasPlayer(player)) {
+        session.addPlayer(player);
+    }
 
-    session.start(bot);
+    session.start();
 }
 
 function joinGame(chatId, userId) {
@@ -88,22 +100,18 @@ function joinGame(chatId, userId) {
     // If the user has not initiated a chat with the bot
     if (session === undefined) {
         bot.sendMessage(chatId, "Please start a game first!");
-        return;
-    } 
-
-    // If a game is running / not yet started
-    if (session.getPhase() != 0) {
+    // If the game has not started
+    } else if (session.getPhase() === -1) {
+        bot.sendMessage(chatId, "Please start a new game!");
+    // If a game is running / not yet started (not in registration phase);
+    } else if (session.getPhase() > 0) {
         bot.sendMessage(chatId, "Please wait till the current round is over!");
-        return;
-    }
-
     // If player is already in the game
-    if (session.hasPlayer(player)) {
+    } else if (session.hasPlayer(player)) {
         bot.sendMessage(chatId, player.getName() + " is already in the game!");
-        return;
+    } else {
+        session.addPlayer(player);
     }
-
-    session.addPlayer(player);
 }
 
 // -------------------- PRIVATE MESSAGE FUNCTIONS -------------------------
