@@ -19,6 +19,10 @@ class Session {
 		return this.chatId;
 	}
 
+	getQuestions() {
+		return this.questions;
+	}
+
 /* METHODS FOR SESSION FLOW CONTROL */
 
 	getPhase() {
@@ -32,36 +36,30 @@ class Session {
 	assignQuestions() {
 	    // Shuffle the players
 	    this.players = shuffleArray(this.players);
+
+    	// Populate the questionQueue if there is not enough questions
+   	    if (this.questionQueue.length <= this.getNumberOfPlayers()) {
+   		    this.populateAndShuffleQuestionQueue();
+    	}
 	    
-	    for (var i = 0; i < this.players.length; i++) {
-	   	    if (this.questionQueue.length <= 1) {
-	   		    this.populateAndShuffleQuestionQueue();
-	    	}
+	    for (var i = 0; i < this.getNumberOfPlayers(); i++) {
 	        var player = this.players[i];
-	        var question1 = new Question(this.questionQueue[0]);
-	        var question2 = new Question(this.questionQueue[1]);
+	        var question1 = new Question(this.questionQueue[i]);
+	        var question2 = new Question(this.questionQueue[(i+1) % this.getNumberOfPlayers()]);
 	        player.addQuestion(question1);
 	        player.addQuestion(question2);
-	        // For the odd players
-	        if (i % 2 === 1) {
-	        	// Remove questions that have been answered from the queue
-	            this.questionQueue.shift();
-	            this.questionQueue.shift();
-	            // Keep a record of the questions that are being answered
-	            this.questions.push(question1);
-	            this.questions.push(question2);
-	        }
+	        this.questions.push(question1); // Keep a record of the questions being answered
 	    }
-	    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOR TESTING ONLY
-	    console.log(this);
-	    console.log(this.players);
-	    console.log(this.questions);
+
+	    // Remove the used questions from this.questionQueue and put into this.questions
+	    for (var i = 0; i < this.getNumberOfPlayers(); i++) {
+	    	this.questionQueue.shift();
+	    }
 	}
 
 	populateAndShuffleQuestionQueue() {
 		this.questionQueue = this.questionQueue.concat(questionBank);
 		shuffleArray(this.questionQueue);
-		console.log(this.questionQueue);
 	}
 
 /* METHODS FOR PLAYERS */
@@ -82,10 +80,9 @@ class Session {
 	}
 
 	sendQuestions(bot) {
-		for (var i in this.players) {
-			this.players[i];
-			this.players[i].sendQuestions(bot);
-		}
+		this.players.forEach(function(player) {
+			player.sendQuestions(bot);
+		});
 	}
 }
 

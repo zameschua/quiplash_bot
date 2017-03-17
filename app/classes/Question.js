@@ -11,8 +11,9 @@ class Question {
 	}
 
 	addAnswer(answer, player) {
-		this.answers.push[answer];
-		this.players.push[player]
+		this.answers.push(answer);
+		this.players.push(player);
+		this.numberOfAnswers += 1;
 	}
 
 	hasBeenAnswered() {
@@ -20,11 +21,19 @@ class Question {
 	}
 
 	getFirstAnswer() {
-		return this.answers[0];
+		if (this.answers[0] === undefined) {
+			return "This faggot did not leave an answer"
+		} else {
+			return this.answers[0];
+		}
 	}
 
 	getSecondAnswer() {
-		return this.answers[1];
+		if (this.answers[1] === undefined) {
+			return "This faggot did not leave an answer"
+		} else {
+			return this.answers[1];
+		}
 	}
 }
 

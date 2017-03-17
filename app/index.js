@@ -63,7 +63,7 @@ function parsePrivateMessage(message) {
         default: 
             var player = players.getPlayerById(userId);
             if (player.isAnsweringQuestions()) {
-                player.receiveAnswer(message, bot);
+                player.receiveAnswer(messageText, bot);
             }
             break;
     }
@@ -161,12 +161,16 @@ function startAnsweringPhase(session) {
     bot.sendMessage(session.getChatId(), "Alright I've sent out the questions! You have 90 seconds to answer 2 questions. May the funniest man win!");
     setTimeout(function() {
         startVotingPhase(session);
-    }, 9000);
+    }, 20000);
+}
+
+function startVotingPhase(session) {
+    session.setPhase(2);
 }
 
 function endSession(session) {
-    for (player in session.getPlayers()) {
-        player.removeFromSession();
-    }
     session.setPhase(-1);
+    session.getPlayers().forEach(function(player) {
+        player.removeFromSession();
+    });
 }

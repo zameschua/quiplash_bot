@@ -25,7 +25,7 @@ class Player {
 
 /* MANAGE QUESTIONS */
 	isAnsweringQuestions() {
-		return this.questionPhase >= 1;
+		return this.questionPhase >= 0;
 	}
 
 	addQuestion(question) {
@@ -47,9 +47,8 @@ class Player {
 	}
 
 	receiveAnswer(answer, bot) {
-		this.questions[questionPhase].addAnswer();
+		this.questions[this.questionPhase].addAnswer(answer, this);
 		if (this.questionPhase === 0) {
-			this.questionPhase += 1;
 			this.sendSecondQuestion(bot);
 		} else if (this.questionPhase === 1) {
 			this.questionPhase = -1;
