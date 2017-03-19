@@ -4,6 +4,8 @@ class Question {
 		this.answers = [];
 		this.players = [];
 		this.numberOfAnswers = 0;
+		this.firstVotes = [];
+		this.secondVotes = [];
 	}
 
 	getQuestionText() {
@@ -17,7 +19,7 @@ class Question {
 	}
 
 	hasBeenAnswered() {
-		return (this.answers.length == 2);
+		return (this.answers.length === 2);
 	}
 
 	getFirstAnswer() {
@@ -34,6 +36,50 @@ class Question {
 		} else {
 			return this.answers[1];
 		}
+	}
+
+	getFirstPlayer() {
+		if (this.answers[0] === undefined) {
+			return "unknown faggot";
+		} else {
+			return this.players[0].getName();
+		}
+	}
+
+	getSecondPlayer() {
+		if (this.answers[1] === undefined) {
+			return "unknown faggot";
+		} else {
+			return this.players[1].getName();
+		}
+	}
+
+	addFirstVote(voterName) {
+		this.firstVotes.push(voterName);
+	}
+
+	getFirstVotersAsString(voterName) {
+		var result = "";
+		this.firstVotes.forEach(function(name) {
+			result = result.concat(name + " ");
+		});
+		return result;
+	}
+
+	addSecondVote(voterName) {
+		this.secondVotes.push(voterName);
+	}
+
+	getSecondVotersAsString(voterName) {
+		var result = "";
+		this.secondVotes.forEach(function(name) {
+			result = result.concat(name + " ");
+		});
+		return result;
+	}
+
+	playerHasVoted(playerName) {
+		return (this.firstVotes.includes(playerName) || this.secondVotes.includes(playerName));
 	}
 }
 

@@ -15,6 +15,14 @@ class Session {
 		this.phase = -1;
 	}
 
+	clearPlayers() {
+		this.players = [];
+	}
+
+	getPlayers() {
+		return this.players;
+	}
+
 	getChatId() {
 		return this.chatId;
 	}
@@ -23,6 +31,17 @@ class Session {
 		return this.questions;
 	}
 
+	hasQuestions() {
+		return this.questions.length != 0;
+	}
+
+	getNumberOfQuestions() {
+		return this.questions.length;
+	}
+
+	shiftQuestion() {
+		this.questions.shift();
+	}
 /* METHODS FOR SESSION FLOW CONTROL */
 
 	getPhase() {
@@ -43,22 +62,18 @@ class Session {
     	}
 	    
 	    for (var i = 0; i < this.getNumberOfPlayers(); i++) {
-	        var player = this.players[i];
-	        var question1 = new Question(this.questionQueue[i]);
-	        var question2 = new Question(this.questionQueue[(i+1) % this.getNumberOfPlayers()]);
-	        player.addQuestion(question1);
-	        player.addQuestion(question2);
-	        this.questions.push(question1); // Keep a record of the questions being answered
-	    }
-
-	    // Remove the used questions from this.questionQueue and put into this.questions
-	    for (var i = 0; i < this.getNumberOfPlayers(); i++) {
-	    	this.questionQueue.shift();
+	        var player1 = this.players[i];
+	        var player2 = this.players[(i+1) % this.players.length];
+	        var question = new Question(this.questionQueue[0]);
+	        player1.addQuestion(question);
+	        player2.addQuestion(question);
+	        this.questions.push(question); // Keep a record of the questions being answered
+	        this.questionQueue.shift(); // Remove the used questions from this.questionQueue and put into this.questions
 	    }
 	}
 
 	populateAndShuffleQuestionQueue() {
-		this.questionQueue = this.questionQueue.concat(questionBank);
+		this.questionQueue = [].concat(questionBank);
 		shuffleArray(this.questionQueue);
 	}
 

@@ -20,6 +20,7 @@ class Player {
 	}
 
 	removeFromSession() {
+		this.questions = [];
 		this.session = null;
 	}
 
@@ -48,6 +49,8 @@ class Player {
 
 	receiveAnswer(answer, bot) {
 		this.questions[this.questionPhase].addAnswer(answer, this);
+		console.log(this.questions[this.questionPhase]);
+		console.log(this.questionPhase);
 		if (this.questionPhase === 0) {
 			this.sendSecondQuestion(bot);
 		} else if (this.questionPhase === 1) {
